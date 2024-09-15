@@ -1,0 +1,46 @@
+function task_2
+
+	A = [0, -2; -1, -2];
+
+    eq_point = A \ [0;0];
+	plot(eq_point(1), eq_point(2), 'r*', 'MarkerSize', 10, 'LineWidth', 2);
+    hold on
+	axis([eq_point(1) - 5, eq_point(1) + 5, eq_point(2) - 5, eq_point(2) + 5])
+	grid on
+
+    [T, D] = eig(A);
+    range = -10 : 1 : 10;
+
+        if imag(D(1,1)) == 0
+            plot(eq_point(1) + T(1,1) * range, eq_point(2) + T(2,1) * range, 'k');
+            plot(eq_point(1) + T(1,2) * range, eq_point(2) + T(2,2) * range, 'k');
+        end
+
+    x = eq_point(1) - 4 : 2 : eq_point(1) + 4;
+	y = eq_point(2) - 4 : 2 : eq_point(2) + 4;
+
+    [X, Y] = meshgrid(x,y);
+
+	t_max = 50;
+
+        function z = rhs(~, y)
+			z = A * y;
+        end
+
+        for i = 1 : length(x)
+            for j = 1 : length(y)
+                [~, Z_1] = ode45(@rhs, [0, t_max], [X(i,j), Y(i,j)]);
+                [~, Z_2] = ode45(@rhs, [0, -t_max], [X(i,j), Y(i,j)]);
+                plot(Z_1(:,1), Z_1(:,2), 'b');
+                plot(Z_2(:,1), Z_2(:,2), 'b');
+
+            end
+        end
+    
+    Dx = A(1,1) * x + A(1,2) * Y;
+	Dy = A(2,1) * x + A(2,2) * Y;
+	
+	d = sqrt(Dx.^2 + Dy.^2);
+	quiver(X, Y, Dx./d, Dy./d, 'r');
+end
+
